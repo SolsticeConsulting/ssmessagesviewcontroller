@@ -38,9 +38,14 @@ CGFloat kInputHeight = 40.0f;
 #pragma mark UIViewController
 
 - (void)viewDidLoad {
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+	
 	self.view.backgroundColor = [UIColor colorWithRed:0.859f green:0.886f blue:0.929f alpha:1.0f];
 	
 	CGSize size = self.view.frame.size;
+	initY = self.view.frame.origin.y;
+	initHeight = size.height;
 	
 	// Table view
 	_tableView = [[UITableView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, size.width, size.height - kInputHeight) style:UITableViewStylePlain];
@@ -79,6 +84,7 @@ CGFloat kInputHeight = 40.0f;
 	[_sendButton setTitle:@"Send" forState:UIControlStateNormal];
 	[_sendButton setTitleColor:[UIColor colorWithWhite:1.0f alpha:0.4f] forState:UIControlStateNormal];
 	[_sendButton setTitleShadowColor:[UIColor colorWithRed:0.325f green:0.463f blue:0.675f alpha:1.0f] forState:UIControlStateNormal];
+	_sendButton.enabled = NO;
 	[_inputBackgroundView addSubview:_sendButton];
 	
 	self.leftBackgroundImage = [[UIImage imageNamed:@"SSMessageTableViewCellBackgroundClear.png"] stretchableImageWithLeftCapWidth:24 topCapHeight:14];
@@ -97,6 +103,15 @@ CGFloat kInputHeight = 40.0f;
 // This method is intended to be overridden by subclasses
 - (NSString *)textForRowAtIndexPath:(NSIndexPath *)indexPath {
 	return nil;
+}
+
+- (BOOL) shouldEnableSendButton {
+	return YES;
+}
+
+- (void) updateSendButton {
+	BOOL hasText = _textField.text && [[_textField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] length] > 0;
+	_sendButton.enabled = [self shouldEnableSendButton] && hasText;
 }
 
 
@@ -138,27 +153,36 @@ CGFloat kInputHeight = 40.0f;
 
 #pragma mark UITextFieldDelegate
 
-- (void)textFieldDidBeginEditing:(UITextField *)textField {
+- (void)keyboardWillShow:(NSNotification *)notification {
 	[UIView beginAnimations:@"beginEditing" context:_inputBackgroundView];
 	[UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
 	[UIView setAnimationDuration:0.3f];
-	_tableView.contentInset = UIEdgeInsetsMake(0.0f, 0.0f, 216.0f, 0.0f);
-	_tableView.scrollIndicatorInsets = _tableView.contentInset;
-	_inputBackgroundView.frame = CGRectMake(0.0f, 160.0f, self.view.frame.size.width, kInputHeight);
-	[_sendButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+	
+	NSDictionary *userInfo = [notification userInfo];
+	NSValue *keyboardBoundsValue = [userInfo objectForKey:UIKeyboardFrameEndUserInfoKey];
+	CGRect keyboardBounds;
+	[keyboardBoundsValue getValue:&keyboardBounds];
+	
+	self.view.frame = CGRectMake(0.0f, initY, self.view.frame.size.width, self.view.frame.size.height - keyboardBounds.size.height);
+	
 	[UIView commitAnimations];
 }
 
-
-- (void)textFieldDidEndEditing:(UITextField *)textField {
+- (void)keyboardWillHide:(NSNotification *)note {
 	[UIView beginAnimations:@"endEditing" context:_inputBackgroundView];
 	[UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
 	[UIView setAnimationDuration:0.3f];
-	_tableView.contentInset = UIEdgeInsetsZero;
-	_tableView.scrollIndicatorInsets = UIEdgeInsetsZero;
-	_inputBackgroundView.frame = CGRectMake(0.0f, _tableView.frame.size.height, self.view.frame.size.width, kInputHeight);
-	[_sendButton setTitleColor:[UIColor colorWithWhite:1.0f alpha:0.4f] forState:UIControlStateNormal];
+	
+	self.view.frame = CGRectMake(0.0f, initY, self.view.frame.size.width, initHeight);
+	_sendButton.enabled = NO;
+	
 	[UIView commitAnimations];
+}
+
+- (BOOL) textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+	BOOL hasText = string && [[string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] length] > 0;
+	_sendButton.enabled = [self shouldEnableSendButton] && hasText;
+	return YES;
 }
 
 @end

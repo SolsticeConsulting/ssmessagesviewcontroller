@@ -16,7 +16,7 @@
 @interface SSMessagesViewController : UIViewController <UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate> {
 
 @private
-	
+	CGFloat initY, initHeight;
 	UITableView *_tableView;
 	UIImageView *_inputBackgroundView;
 	SSTextField *_textField;
@@ -35,5 +35,10 @@
 
 - (SSMessageStyle)messageStyleForRowAtIndexPath:(NSIndexPath *)indexPath;
 - (NSString *)textForRowAtIndexPath:(NSIndexPath *)indexPath;
+
+// This is called before the text field updates its text property so do not depend on the text field for this result.
+- (BOOL) shouldEnableSendButton;
+// Called to manually update the send button (results in a call to shouldEnableSendButton)
+- (void) updateSendButton;
 
 @end
