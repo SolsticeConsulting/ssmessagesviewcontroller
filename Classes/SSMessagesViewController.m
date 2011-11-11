@@ -163,7 +163,14 @@ CGFloat kInputHeight = 40.0f;
 	CGRect keyboardBounds;
 	[keyboardBoundsValue getValue:&keyboardBounds];
 	
-	self.view.frame = CGRectMake(0.0f, initY, self.view.frame.size.width, self.view.frame.size.height - keyboardBounds.size.height);
+//	[_tableView setFrame:CGRectMake(0,0,self.view.frame.size.width, (self.view.frame.size.height - keyboardBounds.size.height - kInputHeight))];
+	[_tableView setFrame:CGRectMake(0,0,self.view.frame.size.width, (self.view.frame.size.height - 216 + 49 - kInputHeight))];
+//    [_inputBackgroundView setFrame:CGRectMake(0.0f, (self.view.frame.size.height - keyboardBounds.size.height - kInputHeight), self.view.frame.size.width, kInputHeight)];
+    [_inputBackgroundView setFrame:CGRectMake(0.0f, (self.view.frame.size.height - 216 + 49 - kInputHeight), self.view.frame.size.width, kInputHeight)];
+	
+//	CGFloat keyboardHeight = MIN(keyboardBounds.size.height, keyboardBounds.origin.y - self.view.frame.size.height);
+//	self.view.frame = CGRectMake(0.0f, initY, self.view.frame.size.width, self.view.frame.size.height - keyboardHeight);
+//	self.view.frame = CGRectMake(0.0f, 0, self.view.frame.size.width, self.view.frame.size.height - keyboardBounds.size.height);
 	
 	[UIView commitAnimations];
 }
@@ -173,7 +180,9 @@ CGFloat kInputHeight = 40.0f;
 	[UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
 	[UIView setAnimationDuration:0.3f];
 	
-	self.view.frame = CGRectMake(0.0f, initY, self.view.frame.size.width, initHeight);
+	[_tableView setFrame:CGRectMake(0,0,self.view.frame.size.width, (self.view.frame.size.height - kInputHeight))];
+    [_inputBackgroundView setFrame:CGRectMake(0.0f, (self.view.frame.size.height - kInputHeight), self.view.frame.size.width, kInputHeight)];
+//	self.view.frame = CGRectMake(0.0f, 0, self.view.frame.size.width, initHeight);
 	_sendButton.enabled = NO;
 	
 	[UIView commitAnimations];

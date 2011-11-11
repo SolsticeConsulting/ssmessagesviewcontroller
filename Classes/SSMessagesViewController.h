@@ -17,6 +17,7 @@
 
 @private
 	CGFloat initY, initHeight;
+	
 	UITableView *_tableView;
 	UIImageView *_inputBackgroundView;
 	SSTextField *_textField;
